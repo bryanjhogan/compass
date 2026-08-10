@@ -1,0 +1,29 @@
+# Gradle
+.gradle/
+build/
+/captures
+.externalNativeBuild/
+.cxx/
+.claude/
+
+# Local config (machine-specific SDK path, never portable)
+local.properties
+
+# Android Studio / IntelliJ
+*.iml
+.idea/*
+!.idea/codeStyles/
+!.idea/runConfigurations.xml
+
+# Keystores (never commit signing material)
+*.jks
+*.keystore
+keystore.properties
+
+# Logs / misc output
+*.log
+*.hprof
+
+# OS files
+.DS_Store
+Thumbs.db
