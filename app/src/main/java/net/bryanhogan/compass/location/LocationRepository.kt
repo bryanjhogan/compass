@@ -69,7 +69,13 @@ class LocationRepository(context: Context) {
         }
 
         providers
-            .mapNotNull { runCatching { locationManager.getLastKnownLocation(it) }.getOrNull() }
+            .mapNotNull { provider ->
+                try {
+                    locationManager.getLastKnownLocation(provider)
+                } catch (_: SecurityException) {
+                    null
+                }
+            }
             .maxByOrNull { it.time }
             ?.let { handleNewLocation(it) }
     }
