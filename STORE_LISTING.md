@@ -28,8 +28,8 @@ WHY THIS APP
 PERMISSIONS
 Location is used only to show your position on the compass and map — it never leaves your device except as part of normal map tile requests to OpenStreetMap when you're online.
 
-Full privacy policy: <INSERT HOSTED PRIVACY POLICY URL HERE>
-Source code: <INSERT PUBLIC REPO URL HERE>
+Full privacy policy: https://github.com/bryanjhogan/compass/blob/master/PRIVACY_POLICY.md
+Source code: https://github.com/bryanjhogan/compass
 
 ## Category
 Suggested: Maps & Navigation

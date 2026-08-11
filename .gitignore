@@ -16,9 +16,11 @@ local.properties
 !.idea/runConfigurations.xml
 
 # Keystores (never commit signing material)
+/keystore/
 *.jks
 *.keystore
 keystore.properties
+keystore_base64.txt
 
 # Logs / misc output
 *.log
