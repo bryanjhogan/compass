@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # A newly published version sits untouched for 30 days before Dependabot will
+    # propose it, regardless of whether it's a major/minor/patch bump. Most malicious
+    # or compromised releases on public registries are caught and pulled within days
+    # to a couple of weeks of publication, so this window means we're not the ones
+    # who discover a bad release the hard way.
+    cooldown:
+      default-days: 30
+      semver-major-days: 30
+      semver-minor-days: 30
+      semver-patch-days: 30
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Actions are pinned to commit SHAs (not tags) in the workflow files, so cooldown
+    # doesn't apply here — GitHub Actions doesn't support it. Dependabot still finds and
+    # proposes SHA bumps for pinned actions, updating the trailing version comment too.
