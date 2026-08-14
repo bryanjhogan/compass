@@ -31,10 +31,20 @@ data class LocationState(
      * which is an acceptable approximation for most of the globe.
      */
     val declinationDegrees: Float = 0f,
-    val hasFix: Boolean = false
+    val hasFix: Boolean = false,
+    /**
+     * Direction of travel over ground, from the GPS fix itself (not the compass sensor).
+     * Null whenever the platform has no bearing for this fix or the device isn't moving fast
+     * enough for it to be meaningful — GPS course is noisy/undefined near a standstill.
+     */
+    val gpsBearingDegrees: Float? = null,
+    val gpsSpeedMetersPerSecond: Float? = null
 )
 
 private const val MIN_GEOCODE_DISTANCE_METERS = 100f
+
+/** Below this speed, GPS-derived bearing is too noisy to trust as a heading. */
+private const val MIN_SPEED_FOR_BEARING_METERS_PER_SECOND = 1.0f
 
 /**
  * Streams device location via the platform [LocationManager] (no Google Play Services
@@ -97,6 +107,13 @@ class LocationRepository(context: Context) {
             location.time
         ).declination
 
+        val speed = if (location.hasSpeed()) location.speed else null
+        val bearing = if (location.hasBearing() && speed != null && speed >= MIN_SPEED_FOR_BEARING_METERS_PER_SECOND) {
+            location.bearing
+        } else {
+            null
+        }
+
         _locationState.update {
             it.copy(
                 latitude = location.latitude,
@@ -104,7 +121,9 @@ class LocationRepository(context: Context) {
                 altitudeMeters = if (location.hasAltitude()) location.altitude else null,
                 accuracyMeters = if (location.hasAccuracy()) location.accuracy else null,
                 declinationDegrees = declination,
-                hasFix = true
+                hasFix = true,
+                gpsBearingDegrees = bearing,
+                gpsSpeedMetersPerSecond = speed
             )
         }
 

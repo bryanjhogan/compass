@@ -1,6 +1,7 @@
 package net.bryanhogan.compass.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +19,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -33,6 +35,8 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.hardware.SensorManager
+import net.bryanhogan.compass.HeadingSource
+import net.bryanhogan.compass.effectiveHeading
 import net.bryanhogan.compass.headingToCardinal
 import net.bryanhogan.compass.sensor.CompassState
 import net.bryanhogan.compass.location.LocationState
@@ -45,11 +49,14 @@ import kotlin.math.sin
 fun CompassScreen(
     compassState: CompassState,
     locationState: LocationState,
+    useGpsBearing: Boolean,
+    onUseGpsBearingChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val magneticHeading = compassState.magneticAzimuthDegrees
     val trueHeading = trueHeadingDegrees(compassState, locationState)
-    val displayHeading = if (locationState.hasFix) trueHeading else magneticHeading
+    val heading = effectiveHeading(compassState, locationState, useGpsBearing)
+    val displayHeading = heading.degrees
 
     Column(
         modifier = modifier
@@ -83,6 +90,11 @@ fun CompassScreen(
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
+        Text(
+            text = headingSourceLabel(heading.source),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -94,10 +106,49 @@ fun CompassScreen(
                     "True heading",
                     if (locationState.hasFix) "${trueHeading.roundToInt()}°" else "Waiting for GPS fix"
                 )
+                InfoRow(
+                    "GPS bearing",
+                    locationState.gpsBearingDegrees?.let { "${it.roundToInt()}°" } ?: "Not moving fast enough"
+                )
                 InfoRow("Magnetic field", "${compassState.magneticFieldMicroTesla.roundToInt()} µT")
                 InfoRow("Sensor accuracy", accuracyLabel(compassState.accuracy))
             }
         }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        GpsBearingToggleRow(
+            useGpsBearing = useGpsBearing,
+            onUseGpsBearingChange = onUseGpsBearingChange
+        )
+    }
+}
+
+private fun headingSourceLabel(source: HeadingSource): String = when (source) {
+    HeadingSource.GPS_BEARING -> "Showing GPS bearing (direction of travel)"
+    HeadingSource.TRUE_NORTH -> "Showing true heading"
+    HeadingSource.MAGNETIC -> "Showing magnetic heading"
+}
+
+@Composable
+private fun GpsBearingToggleRow(
+    useGpsBearing: Boolean,
+    onUseGpsBearingChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onUseGpsBearingChange(!useGpsBearing) },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = "Use GPS bearing while moving",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.weight(1f)
+        )
+        Switch(checked = useGpsBearing, onCheckedChange = onUseGpsBearingChange)
     }
 }
 

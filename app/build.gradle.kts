@@ -5,6 +5,10 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+base {
+    archivesName.set("Compass")
+}
+
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) {

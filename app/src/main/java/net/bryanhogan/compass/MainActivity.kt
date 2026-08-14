@@ -149,6 +149,7 @@ private fun CompassApp(viewModel: CompassViewModel, crashLog: String? = null) {
 
     val compassState by viewModel.compassState.collectAsStateWithLifecycle()
     val locationState by viewModel.locationState.collectAsStateWithLifecycle()
+    val useGpsBearing by viewModel.useGpsBearing.collectAsStateWithLifecycle()
 
     val navController = rememberNavController()
     val destinations = listOf(Destination.Compass, Destination.Level, Destination.Map)
@@ -181,7 +182,12 @@ private fun CompassApp(viewModel: CompassViewModel, crashLog: String? = null) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Destination.Compass.route) {
-                CompassScreen(compassState, locationState)
+                CompassScreen(
+                    compassState = compassState,
+                    locationState = locationState,
+                    useGpsBearing = useGpsBearing,
+                    onUseGpsBearingChange = viewModel::setUseGpsBearing
+                )
             }
             composable(Destination.Level.route) {
                 LevelScreen(compassState)
